@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -9,108 +11,62 @@ using System.Threading.Tasks;
 
 namespace BuscaCep.ViewModels
 {
-    public class BuscaCepViewModel : BaseViewModel
+    partial class BuscaCepViewModel : BaseViewModel
     {
-        private string? _CEP;
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(BuscarCommand))]
+        string? _CEP;
 
-        private string? _Logradouro;
-        public string? Logradouro
-        {
-            get => _Logradouro;
-            set
-            {
-                _Logradouro = value;
-                OnPropertyChanged();
-            }
-        }
-        private string? _Bairro;
-        public string? Bairro
-        {
-            get => _Bairro;
-            set
-            {
-                _Bairro = value;
-                OnPropertyChanged();
-            }
-        }
-        private string? _Localidade;
-        public string? Localidade
-        {
-            get => _Localidade;
-            set
-            {
-                _Localidade = value;
-                OnPropertyChanged();
-            }
-        }
-        private string? _UF;
-        public string? UF
-        {
-            get => _UF;
-            set
-            {
-                _UF = value;
-                OnPropertyChanged();
-            }
-        }
+        ViaCepDTO? _dto = null;
 
-        private string? _DDD;
-        public string? DDD 
-        { get => _DDD;
-            set {
-                _DDD = value;
-                OnPropertyChanged();
-            } 
-        }
+        public string? Logradouro { get => _dto?.logradouro; }
+    
+        public string? Bairro { get => _dto?.bairro; }
+       
+        public string? Localidade { get => _dto?.localidade; }
+       
+        public string? UF { get => _dto?.uf; }
+       
+        public string? DDD { get => _dto?.ddd; }      
 
-        public string? CEP
-        {
-            get => _CEP;
+       
+        private bool BuscarCanExecute()
+            => !string.IsNullOrWhiteSpace(CEP) &&
+            CEP.Length == 8 &&
+            IsNotBusy;
 
-            set
-            {
-                _CEP = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private Command _BuscarCommand;
-
-        public Command BuscarCommand
-         => _BuscarCommand ??= new Command(async () => await BuscarCommandExecute());            
-        
-
-        private async Task BuscarCommandExecute()
+        [RelayCommand(CanExecute = nameof(BuscarCanExecute))]
+        private async Task Buscar()
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(CEP))                
-                 throw new InvalidOperationException("Você Precisa Informar o CEP");
-                
-                else
-                {
-                    var ViaCepResult = await new HttpClient().GetFromJsonAsync<ViaCepDTO>($"https://viacep.com.br/ws/{CEP}/json/");
+                if (IsBusy)
+                    return;
 
-                    if (ViaCepResult.erro)
-                    {
-                        throw new InvalidOperationException("Você Precisa Informar o CEP");
-                    }
+                IsBusy = true;               
 
-                    if (ViaCepResult is null)
+                _dto = await new HttpClient().GetFromJsonAsync<ViaCepDTO>($"https://viacep.com.br/ws/{CEP}/json/") ??
                     throw new InvalidOperationException("Algo de Errado Não Está Certo");
+
+                    if (_dto.erro)                    
+                        throw new InvalidOperationException("Você Precisa Informar o CEP");                   
                     
-                    
-                       Logradouro = ViaCepResult.logradouro;
-                       Bairro = ViaCepResult.bairro;
-                       Localidade = ViaCepResult.localidade;
-                       UF = ViaCepResult.uf;
-                       DDD = ViaCepResult?.ddd;
-                    
-                }
+                
             }
             catch (Exception ex)
             {
                 await App.Current.MainPage.DisplayAlert("Ops", ex.Message, "OK");
+            }
+            finally
+            {
+                OnPropertyChanged(nameof(Logradouro));
+                OnPropertyChanged(nameof(Bairro));
+                OnPropertyChanged(nameof(Localidade));
+                OnPropertyChanged(nameof(UF));
+                OnPropertyChanged(nameof(DDD));
+
+                IsBusy = false;
+                BuscarCommand.NotifyCanExecuteChanged();
             }
         }
 

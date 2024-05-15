@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,11 +9,13 @@ using System.Threading.Tasks;
 
 namespace BuscaCep.ViewModels
 {
-    public class BaseViewModel : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = " ")
-          => PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    abstract partial class BaseViewModel : ObservableObject
+    {        
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsNotBusy))]
+        bool _IsBusy = false;
+       
+        public bool IsNotBusy => !_IsBusy;
 
     }
 }
