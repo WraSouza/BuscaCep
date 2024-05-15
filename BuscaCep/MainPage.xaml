@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mvvm="clr-namespace:BuscaCep.ViewModels"
+             x:Class="BuscaCep.MainPage">
+
+    <ContentPage.BindingContext>
+        <mvvm:BuscaCepViewModel/>
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+
+            <Entry x:Name="txtCep"
+                   Keyboard="Numeric"
+                   Text="{Binding CEP}"
+                   MaxLength="8"/>
+
+            <Button
+                x:Name="CounterBtn"
+                Text="Buscar" 
+                SemanticProperties.Hint="Counts the number of times you click"
+                Clicked="OnCounterClicked"
+                HorizontalOptions="Fill" />
+
+            <VerticalStackLayout Spacing="15">
+
+            <HorizontalStackLayout Spacing="25">
+                <Label FontAttributes="Bold" Text="Logradouro"/>
+                <Label x:Name="lblLogradouro" Text="-"/>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="25">
+                <Label FontAttributes="Bold" Text="Bairro"/>
+                    <Label x:Name="lblBairro" Text="-"/>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="25">
+                <Label FontAttributes="Bold" Text="Localidade"/>
+                    <Label x:Name="lblLocalidade" Text="-"/>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="25">
+                <Label FontAttributes="Bold" Text="UF"/>
+                    <Label x:Name="lblUF" Text="-"/>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="25">
+                <Label FontAttributes="Bold" Text="DDD"/>
+                    <Label x:Name="lblDDD" Text="-"/>
+            </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
